@@ -89,7 +89,7 @@ if (isset($_GET['location'])) {
     header('Content-Type: application/xml');
 
 
-    $result = $xmlResponse->asXML('./weather_data/ustinadlabem.xml');
+    $result = $xmlResponse->asXML('./weather_data/'. $location .'.xml');
 
     // Output the XML document
     echo $xmlResponse->asXML();
