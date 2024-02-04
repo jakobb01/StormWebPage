@@ -87,8 +87,27 @@
             var name = document.getElementById('name').value;
             var email = document.getElementById('email').value;
 
-            // Perform login logic here
-            console.log('Login:', name, email);
+            // Create XML data
+            var xmlData = '<loginRequest>';
+            xmlData += '<name>' + name + '</name>';
+            xmlData += '<email>' + email + '</email>';
+            xmlData += '</loginRequest>';
+
+            // POST req to db_test.php
+            $.ajax({
+                type: 'POST',
+                url: 'db_test.php',
+                contentType: 'application/xml',
+                data: xmlData,
+                success: function(response) {
+                    // login response
+                    console.log(response);
+                },
+                error: function() {
+                    // handle errors here
+                    console.log('Error during login request');
+                }
+            });
         }
 
         function register() {
