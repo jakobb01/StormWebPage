@@ -1,6 +1,6 @@
 <?php
 
-function callAPI($method, $url, $data){
+function callAPI($method, $url, $data, $key){
     $curl = curl_init();
     switch ($method){
         case "POST":
@@ -20,7 +20,7 @@ function callAPI($method, $url, $data){
     // OPTIONS:
     curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-        'APIKEY: 111111111111111111111',
+        'X-Api-Key:' . $key,
         'Content-Type: application/json',
     ));
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -46,13 +46,23 @@ function array_to_xml( $data, &$xml_data ) {
     }
 }
 
-
+function getCoordinates( $city ) {
+    $key = file_get_contents('key');
+    $response = callAPI('GET', 'https://api.api-ninjas.com/v1/geocoding?city=' . $city, false, $key);
+    return $response;
+}
 
 
 // Check if the location is provided in the GET request
 if (isset($_GET['location'])) {
 
-    $get_data = callAPI('GET', 'https://api.open-meteo.com/v1/forecast?latitude=50.66&longitude=14.04&current=temperature_2m', false);
+    $location = urlencode($_GET['location']);
+    $coordinates_json = getCoordinates($location);
+    $coordinates = json_decode($coordinates_json, true);
+    $lat = $coordinates[0]['latitude'];
+    $lon = $coordinates[0]['longitude'];
+
+    $get_data = callAPI('GET', 'https://api.open-meteo.com/v1/forecast?latitude='. $lat .'&longitude='. $lon .'&current=temperature_2m', false, '');
 
     $response = json_decode($get_data, true);
 
