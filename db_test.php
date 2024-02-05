@@ -39,6 +39,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 echo "2";
             }
 
+        } elseif ($xml->getName() === "registerRequest") {
+            $name = $xml->name;
+            $email = $xml->email;
+
+            $sql = "INSERT INTO users (name, email) VALUES ('$name', '$email')";
+            if ($db->query($sql)) {
+                // success
+                echo "1";
+            } else {
+                // registration failed
+                echo "2";
+            }
         } else {
             echo "Invalid XML request";
         }

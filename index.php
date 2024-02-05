@@ -129,11 +129,38 @@
         }
 
         function register() {
-            var name = document.getElementById('name').value;
+            var uname = document.getElementById('name').value;
             var email = document.getElementById('email').value;
 
-            // Perform registration logic here
-            console.log('Register:', name, email);
+            // Create XML data
+            var xmlData = '<registerRequest>';
+            xmlData += '<name>' + uname + '</name>';
+            xmlData += '<email>' + email + '</email>';
+            xmlData += '</registerRequest>';
+
+            // POST req to db_test.php - registerRequest
+            $.ajax({
+                type: 'POST',
+                url: 'db_test.php',
+                contentType: 'application/xml',
+                data: xmlData,
+                success: function (response) {
+                    if (response === "1") {
+                        showAuthLoginUI();
+                        var correctRegHtml = '<h3>Successful registration. You can now login!</h3>'
+                        $('#authLoginUI').html(correctRegHtml);
+
+                    } else {
+                        showAuthLoginUI();
+                        var incorrectRegHtml = '<h3>Something went wrong... please try again later</h3>'
+                        $('#authLoginUI').html(incorrectRegHtml);
+                    }
+                },
+                error: function () {
+                    // handle errors here
+                    console.log('Error during registration');
+                }
+            });
         }
 
         function logoutUser() {
