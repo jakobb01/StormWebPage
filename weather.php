@@ -52,9 +52,6 @@ function getCoordinates( $city ) {
     return $response;
 }
 
-$wmo = [0, 1, 2, 3, 45, 48, 51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 99];
-$wmo_name = ["clear sky", "mainly clear", "partly cloudy", "overcast", "fog", "depositing rime fog", "light drizzle", "moderate drizzle", "dense drizzle", "slight rain", "moderate rain", "heavy rain", "freezing rain: light", "freezing rain: heavy", "slight snow fall", "moderate snow fall", "heavy snow fall", "snow grains", "slight rain showers", "moderate rain shower", "violent rain shower", "slight snow shower", "heavy snow shower", "thunderstorm", "thunderstorm", "thunderstorm"];
-
 
 // Check if the location is provided in the GET request
 if (isset($_GET['location'])) {
@@ -66,8 +63,12 @@ if (isset($_GET['location'])) {
     //$lon = $coordinates[0]['longitude'];
 
     //$get_data = callAPI('GET', 'https://api.open-meteo.com/v1/forecast?latitude='. $lat .'&longitude='. $lon .'&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset', false, '');
-    function test_weather()
+}
+function test_weather()
     {
+        $wmo = [0, 1, 2, 3, 45, 48, 51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 99];
+        $wmo_name = ["clear sky", "mainly clear", "partly cloudy", "overcast", "fog", "depositing rime fog", "light drizzle", "moderate drizzle", "dense drizzle", "slight rain", "moderate rain", "heavy rain", "freezing rain: light", "freezing rain: heavy", "slight snow fall", "moderate snow fall", "heavy snow fall", "snow grains", "slight rain showers", "moderate rain shower", "violent rain shower", "slight snow shower", "heavy snow shower", "thunderstorm", "thunderstorm", "thunderstorm"];
+
         // TESTING -> Berlin
         $location = 'test_berlin';
         $lat = '52.52';
@@ -87,21 +88,45 @@ if (isset($_GET['location'])) {
         // Extract weather information
         $latitude = $weatherXml->latitude;
         $longitude = $weatherXml->longitude;
-        $temperature_max = $weatherXml->temperature_2m_max;
-        $temperature_min = $weatherXml->temperature_2m_min;
-        $sunrise = $weatherXml->sunrise;
-        $sunset = $weatherXml->sunset;
-        // extract weather code
-        $weather_code = $weatherXml->weather_code;
+        $temperature_max = $weatherXml->daily->temperature_2m_max;
+        $temperature_min = $weatherXml->daily->temperature_2m_min;
+        $sunrise = $weatherXml->daily->sunrise;
+        $sunset = $weatherXml->daily->sunset;
 
-        print_r($weather_code);
+        // extract weather code -> convert to strings
+        $weather_code = $weatherXml->daily->weather_code;
+        // Convert SimpleXMLElement objects to an array
+        $weather_code_array = [];
+        for ($i=0; $i < 7; $i++) {
+            $weather_code_array[$i] = $weather_code->{$i};
+        }
+        // Map weather codes to corresponding names
+        $weather_strings = [];
+        foreach ($weather_code_array as $code) {
+            $index = array_search($code, $wmo); // Find the index of the code in the wmo array
+            if ($index !== false && isset($wmo_name[$index])) {
+                $weather_strings[] = $wmo_name[$index];
+            } else {
+                // Handle cases where the code is not found in the mapping
+                $weather_strings[] = "Unknown"; // Or any default value you prefer
+            }
+        }
+        // weather_string ARRAY READY FOR XML
+        echo($temperature_max->{0});
+
 
         // Create a new SimpleXMLElement for the response
         $xmlResponse = new SimpleXMLElement('<weather></weather>');
 
-        // Add weather data to the XML document
-        $xmlResponse->addChild('location', $weatherXml->latitude . ', ' . $weatherXml->longitude);
-        $xmlResponse->addChild('temperature', $weatherXml->current->temperature_2m);
+        // Add location information
+        $xmlResponse->addChild('location', $latitude . ', ' . $longitude);
+
+        childToXml($xmlResponse, $weather_strings, 'weather', false);
+        childToXml($xmlResponse, $temperature_max, 'temperatureMax', true);
+        childToXml($xmlResponse, $temperature_min, 'temperatureMin', true);
+        childToXml($xmlResponse, $sunrise, 'sunrise', true);
+        childToXml($xmlResponse, $sunset, 'sunset', true);
+
 
 
         // Set the content type to XML
@@ -113,13 +138,33 @@ if (isset($_GET['location'])) {
         // Output the XML document
         echo $xmlResponse->asXML();
     }
+
+function childToXml($xmlResponse, $attribute, $attributeName, $howtoaccess)
+{
+    // Create a "temperatures" child element to hold the daily temperature data
+    $temperaturesElement = $xmlResponse->addChild($attributeName.'s');
+
+    // Add temperatures for each day
+    for ($day = 0; $day <= 6; $day++) {
+        // Replace this with the actual temperature data for each day
+        if ($howtoaccess) {
+            $temperatureForDay = $attribute->{$day};
+        } else {
+            $temperatureForDay = $attribute[$day];
+        }
+
+
+        // Add the temperature to the "temperatures" element
+        $temperaturesElement->addChild($attributeName, $temperatureForDay);
+    }
+    return $xmlResponse;
 }
 
-else {
+//else {
         // Location not provided in the GET request
-        echo "Please provide a location.";
-    }
+  //      echo "Please provide a location.";
+    //}
 
-
+test_weather();
 
 
