@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $name = $xml->name;
             $email = $xml->email;
 
-            // TODO: check credentials against the database
+            // TODO: "better" check credentials against the database
             $result = $db->query("SELECT email FROM users WHERE name='$name'");
 
             $row = $result->fetchArray();
@@ -51,6 +51,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 // registration failed
                 echo "2";
             }
+        } elseif ($xml->getName() === "saveWeather") {
+            $name = $xml->userName;
+            $location = $xml->location;
+            $date = $xml->date;
+            $weather = $xml->weather;
+            $maxTemp = $xml->maxTemp;
+            $minTemp = $xml->minTemp;
+            $sunrise = $xml->sunrise;
+            $sunset = $xml->sunset;
+
+            // TODO: get user id from db with his name
+
+            // TODO: store weather data with user id to the database
+
+            echo $name, $location, $date, $weather, $maxTemp, $minTemp, $sunrise, $sunset;
+
         } else {
             echo "Invalid XML request";
         }

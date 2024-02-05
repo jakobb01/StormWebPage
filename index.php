@@ -73,13 +73,14 @@
                         sunrise[1] = sunrise[1].split(".")[0];
                         sunset[1] = sunset[1].split(".")[0];
 
+                        html += "<br>";
                         html += "<div>";
                         html += "<strong>";
 
                         if (sunrise[0] === todayDateString) {
                             html += "TODAY: ";
                         } else {
-                            html += sunrise[0] + ": ";
+                            html += new Date(sunrise[0]).toLocaleDateString() + ": ";
                         }
 
 
@@ -90,6 +91,9 @@
                         html += "<strong>Sunset:</strong> " + sunset[1];
                         html += "</div>";
                         html += "<br>";
+
+                        // Add button with onclick event to save weather data
+                        html += "<button onclick=\"saveWeather('" + location + "','" + sunrise[0] + "','" + weather + "','" + temperatureMax + "','" + temperatureMin + "','" + sunrise[1] + "','" + sunset[1] + "')\">Save Weather Day " + new Date(sunrise[0]).toLocaleDateString() + "</button>";
                     }
 
                     html += "</ul>";
@@ -99,6 +103,38 @@
                 error: function () {
                     // Handle errors here
                     $('#weatherInfo').html('<p>Error fetching weather information.</p>');
+                }
+            });
+        }
+
+        function saveWeather(location, date, weather, maxTemp, minTemp, sunrise, sunset) {
+            if (name === "") {
+                alert("Please login to use this feature!");
+                return false
+            }
+            var xmlData = '<saveWeather>';
+            xmlData += '<userName>' + name + '</userName>';
+            xmlData += '<location>' + location + '</location>';
+            xmlData += '<date>' + date + '</date>';
+            xmlData += '<weather>' + weather + '</weather>';
+            xmlData += '<maxTemp>' + maxTemp + '</maxTemp>';
+            xmlData += '<minTemp>' + minTemp + '</minTemp>';
+            xmlData += '<sunrise>' + sunrise + '</sunrise>';
+            xmlData += '<sunset>' + sunset + '</sunset>';
+            xmlData += '</saveWeather>';
+
+            // post req to db_test.php to store all info into database
+            $.ajax({
+                type: 'POST',
+                url: 'db_test.php',
+                contentType: 'application/xml',
+                data: xmlData,
+                success: function (response) {
+                    console.log('Success:', response);
+                    // You can add further actions here if needed
+                },
+                error: function (error) {
+                    console.error('Error:', error);
                 }
             });
         }
