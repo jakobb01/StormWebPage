@@ -33,10 +33,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             if ($row["email"] == $email) {
                 // user found
-                echo "Login successful";
+                echo "1";
             } else {
                 // failed login
-                echo "Login failed";
+                echo "2";
             }
 
         } else {

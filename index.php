@@ -8,6 +8,11 @@
 </head>
 <body>
 
+<script>
+    let auth = false;
+    let name = "";
+</script>
+
 
 <h1>Weather App</h1>
 
@@ -64,6 +69,10 @@
     <!-- Add content for the History UI here -->
 </div>
 
+<div id="authLoginUI" style="display: none;">
+    <!-- Displayed if correctly signed in or not. -->
+</div>
+
 <div id="loginUI" style="display: none;">
     <h2>Login or Register</h2>
 
@@ -81,15 +90,14 @@
         <button type="button" onclick="login()">Login</button>
         <button type="button" onclick="register()">Register</button>
     </form>
-
     <script>
         function login() {
-            var name = document.getElementById('name').value;
+            var uname = document.getElementById('name').value;
             var email = document.getElementById('email').value;
 
             // Create XML data
             var xmlData = '<loginRequest>';
-            xmlData += '<name>' + name + '</name>';
+            xmlData += '<name>' + uname + '</name>';
             xmlData += '<email>' + email + '</email>';
             xmlData += '</loginRequest>';
 
@@ -100,8 +108,18 @@
                 contentType: 'application/xml',
                 data: xmlData,
                 success: function(response) {
+                    console.log(response)
                     // login response
-                    console.log(response);
+                    if (response === "1") {
+                        auth = true;
+                        name = uname;
+                        userLoggedInUI(name)
+                    }
+                    else {
+                        showAuthLoginUI();
+                        var incorrectLoginHtml = '<h3>Wrong username or email, please try again!</h3>'
+                        $('#authLoginUI').html(incorrectLoginHtml);
+                    }
                 },
                 error: function() {
                     // handle errors here
@@ -116,6 +134,20 @@
 
             // Perform registration logic here
             console.log('Register:', name, email);
+        }
+
+        function logoutUser() {
+            auth = false;
+            showLoginUI();
+
+        }
+
+        function userLoggedInUI(name) {
+            showAuthLoginUI();
+            var successfulLoginHtml = '<h3>Successfully logged in!</h3>'
+            successfulLoginHtml += '<p>Welcome back, ' + name + '</p>';
+            successfulLoginHtml += '<button onClick="logoutUser()">LOGOUT</button>'
+            $('#authLoginUI').html(successfulLoginHtml);
         }
     </script>
 </div>
@@ -133,11 +165,21 @@
 
     function showLoginUI() {
         hideAllUIs();
-        $('#loginUI').show();
+        if (!auth) {
+            $('#loginUI').show();
+        } else {
+            userLoggedInUI(name)
+        }
+
+    }
+
+    function showAuthLoginUI() {
+        hideAllUIs();
+        $('#authLoginUI').show();
     }
 
     function hideAllUIs() {
-        $('#searchUI, #historyUI, #loginUI').hide();
+        $('#searchUI, #historyUI, #loginUI, #authLoginUI').hide();
     }
 </script>
 
