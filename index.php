@@ -65,8 +65,18 @@
 </div>
 
 <div id="historyUI" style="display: none;">
-    <h2>History UI</h2>
-    <!-- Add content for the History UI here -->
+    <script>
+        function userHistory() {
+            if (auth) {
+                // call database and show it here, all places + temperature a user has saved to date
+                var historyHtml = '<h3>' + name + ' history: </h3>';
+                $('#historyUI').html(historyHtml);
+            } else {
+                var noHistoryHtml = '<h3>Login to use this feature!</h3>';
+                $('#historyUI').html(noHistoryHtml);
+            }
+        }
+    </script>
 </div>
 
 <div id="authLoginUI" style="display: none;">
@@ -108,8 +118,6 @@
                 contentType: 'application/xml',
                 data: xmlData,
                 success: function(response) {
-                    console.log(response)
-                    // login response
                     if (response === "1") {
                         auth = true;
                         name = uname;
@@ -187,6 +195,7 @@
 
     function showHistoryUI() {
         hideAllUIs();
+        userHistory()
         $('#historyUI').show();
     }
 
