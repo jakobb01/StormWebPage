@@ -252,6 +252,7 @@
 
         function logoutUser() {
             auth = false;
+            name = "";
             showLoginUI();
 
         }
