@@ -38,6 +38,7 @@
     <script>
         function getWeather() {
             var location = document.getElementById('location').value;
+            document.getElementById('weatherForm').reset();
 
             // Send AJAX request to weather.php with the location
             $.ajax({
@@ -55,6 +56,9 @@
 
                     console.log(weathers)
 
+                    var today = new Date();
+                    var todayDateString = today.toISOString().split("T")[0];
+
 
                     // Create HTML to display the information
                     var html = "<h3>Weather Information for " + location + "</h3>";
@@ -64,16 +68,27 @@
                         var weather = weathers[i].childNodes[0].nodeValue;
                         var temperatureMax = temperatureMaxs[i].childNodes[0].nodeValue;
                         var temperatureMin = temperatureMins[i].childNodes[0].nodeValue;
-                        var sunrise = sunrises[i].childNodes[0].nodeValue;
-                        var sunset = sunsets[i].childNodes[0].nodeValue;
+                        var sunrise = new Date(sunrises[i].childNodes[0].nodeValue).toISOString().split("T");
+                        var sunset = new Date(sunsets[i].childNodes[0].nodeValue).toISOString().split("T");
+                        sunrise[1] = sunrise[1].split(".")[0];
+                        sunset[1] = sunset[1].split(".")[0];
 
-                        html += "<li>";
-                        html += "<strong>Weather:</strong> " + weather + "<br>";
+                        html += "<div>";
+                        html += "<strong>";
+
+                        if (sunrise[0] === todayDateString) {
+                            html += "TODAY: ";
+                        } else {
+                            html += sunrise[0] + ": ";
+                        }
+
+
+                        html += "</strong>" + weather + "<br>";
                         html += "<strong>Max Temperature:</strong> " + temperatureMax + "°C<br>";
                         html += "<strong>Min Temperature:</strong> " + temperatureMin + "°C<br>";
-                        html += "<strong>Sunrise:</strong> " + sunrise + "<br>";
-                        html += "<strong>Sunset:</strong> " + sunset;
-                        html += "</li>";
+                        html += "<strong>Sunrise:</strong> " + sunrise[1] + "<br>";
+                        html += "<strong>Sunset:</strong> " + sunset[1];
+                        html += "</div>";
                         html += "<br>";
                     }
 
@@ -130,6 +145,7 @@
         function login() {
             var uname = document.getElementById('name').value;
             var email = document.getElementById('email').value;
+            document.getElementById('loginForm').reset();
 
             // Create XML data
             var xmlData = '<loginRequest>';
@@ -165,6 +181,7 @@
         function register() {
             var uname = document.getElementById('name').value;
             var email = document.getElementById('email').value;
+            document.getElementById('loginForm').reset();
 
             // Create XML data
             var xmlData = '<registerRequest>';
