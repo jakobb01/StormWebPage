@@ -62,11 +62,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $sunset = $xml->sunset;
 
             // TODO: get user id from db with his name
+            $result = $db->query("SELECT id FROM users WHERE name='$name'");
+            $row = $result->fetchArray();
+            $userID = $row['id'];
+            if ($userID == "") {
+                // failed to find user id
+                echo "3 - failed to find user";
+            }
 
             // TODO: store weather data with user id to the database
-
-            echo $name, $location, $date, $weather, $maxTemp, $minTemp, $sunrise, $sunset;
-
+            $sql = "INSERT INTO history (id, location, date, weather, maxTemp, mintemp, sunrise, sunset) VALUES ('$userID', '$location', '$date', '$weather', '$maxTemp', '$minTemp', '$sunrise', '$sunset')";
+            if ($db->query($sql)) {
+                // success
+                echo "1 - success";
+            } else {
+                // failed to save data
+                echo "2 - failed to save data";
+            }
         } else {
             echo "Invalid XML request";
         }
