@@ -46,14 +46,40 @@
                 data: {location: location},
                 success: function (xmlData) {
                     // Extract information from XML
-                    var locationInfo = xmlData.getElementsByTagName("location")[0].childNodes[0].nodeValue;
-                    var temperatureInfo = xmlData.getElementsByTagName("temperature")[0].childNodes[0].nodeValue;
+                    //var locationInfo = xmlData.getElementsByTagName("location")[0].childNodes[0].nodeValue;
+                    var weathers = xmlData.getElementsByTagName("weather");
+                    var temperatureMaxs = xmlData.getElementsByTagName("temperatureMax");
+                    var temperatureMins = xmlData.getElementsByTagName("temperatureMin");
+                    var sunrises = xmlData.getElementsByTagName("sunrise");
+                    var sunsets = xmlData.getElementsByTagName("sunset");
 
-                    // Display information on the webpage
-                    var weatherInfoHtml = '<p>Location: ' + locationInfo + '</p>';
-                    weatherInfoHtml += '<p>Temperature: ' + temperatureInfo + ' °C</p>';
+                    console.log(weathers)
 
-                    $('#weatherInfo').html(weatherInfoHtml);
+
+                    // Create HTML to display the information
+                    var html = "<h3>Weather Information for " + location + "</h3>";
+                    html += "<ul>";
+
+                    for (var i = 0; i < weathers.length; i++) {
+                        var weather = weathers[i].childNodes[0].nodeValue;
+                        var temperatureMax = temperatureMaxs[i].childNodes[0].nodeValue;
+                        var temperatureMin = temperatureMins[i].childNodes[0].nodeValue;
+                        var sunrise = sunrises[i].childNodes[0].nodeValue;
+                        var sunset = sunsets[i].childNodes[0].nodeValue;
+
+                        html += "<li>";
+                        html += "<strong>Weather:</strong> " + weather + "<br>";
+                        html += "<strong>Max Temperature:</strong> " + temperatureMax + "°C<br>";
+                        html += "<strong>Min Temperature:</strong> " + temperatureMin + "°C<br>";
+                        html += "<strong>Sunrise:</strong> " + sunrise + "<br>";
+                        html += "<strong>Sunset:</strong> " + sunset;
+                        html += "</li>";
+                        html += "<br>";
+                    }
+
+                    html += "</ul>";
+
+                    $('#weatherInfo').html(html);
                 },
                 error: function () {
                     // Handle errors here
