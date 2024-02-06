@@ -61,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $sunrise = $xml->sunrise;
             $sunset = $xml->sunset;
 
-            // TODO: get user id from db with his name
+            // TODO: duplicate code with GET method - create common function
             $result = $db->query("SELECT id FROM users WHERE name='$name'");
             $row = $result->fetchArray();
             $userID = $row['id'];
@@ -70,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 echo "3 - failed to find user";
             }
 
-            // TODO: store weather data with user id to the database
+            // store weather data with user id to the database
             $sql = "INSERT INTO history (id, location, date, weather, maxTemp, mintemp, sunrise, sunset) VALUES ('$userID', '$location', '$date', '$weather', '$maxTemp', '$minTemp', '$sunrise', '$sunset')";
             if ($db->query($sql)) {
                 // success
@@ -84,5 +84,42 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     } else {
         echo "Invalid XML data";
+    }
+}
+
+if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    // Check if XML data is sent in the request
+    if (isset($_GET["xmlData"])) {
+        $xmlData = $_GET["xmlData"];
+        $xml = simplexml_load_string($xmlData);
+
+        if ($xml !== false) {
+            if ($xml->getName() === "userHistory") {
+                $name = $xml->userName;
+
+                // TODO: duplicate code // get user id based on their name
+                $result = $db->query("SELECT id FROM users WHERE name='$name'");
+                $row = $result->fetchArray();
+                $userID = $row['id'];
+                if ($userID == "") {
+                    // failed to find user id
+                    echo "3 - failed to find user";
+                }
+
+                echo $userID;
+
+                // TODO: query "history" table and get everything with "userID"
+
+
+                // TODO: send back xml data
+
+            } else {
+                echo "Invalid XML request";
+            }
+        } else {
+            echo "Invalid XML data";
+        }
+    } else {
+        echo "No XML data received";
     }
 }
