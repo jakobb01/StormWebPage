@@ -70,6 +70,7 @@
                         var temperatureMin = temperatureMins[i].childNodes[0].nodeValue;
                         var sunrise = new Date(sunrises[i].childNodes[0].nodeValue).toISOString().split("T");
                         var sunset = new Date(sunsets[i].childNodes[0].nodeValue).toISOString().split("T");
+                        // TODO: time showcased is not on local time but on GMT +0
                         sunrise[1] = sunrise[1].split(".")[0];
                         sunset[1] = sunset[1].split(".")[0];
 
@@ -130,10 +131,15 @@
                 contentType: 'application/xml',
                 data: xmlData,
                 success: function (response) {
-                    console.log('Success:', response);
-                    // You can add further actions here if needed
+                    if (response === "1 - success") {
+                        alert("Successfully saved! You can now see your saves in history tab!");
+                    } else {
+                        alert("Something went wrong.")
+                    }
+                    console.log('Response:', response);
                 },
                 error: function (error) {
+                    alert("Something went wrong.")
                     console.error('Error:', error);
                 }
             });
@@ -144,8 +150,30 @@
 <div id="historyUI" style="display: none;">
     <script>
         function userHistory() {
-            if (auth) {
-                // call database and show it here, all places + temperature a user has saved to date
+            if (auth && !(name === "")) {
+                // xml to send with the request
+                var xmlData = '<userHistory>';
+                xmlData += '<userName>' + name + '</userName>';
+                xmlData += '</userHistory>';
+                // Encode the xml data to make it URL-safe
+                var encodedXmlData = encodeURIComponent(xmlData);
+                // Construct the URL with the encoded xml data
+                var url = 'db_test.php?xmlData=' + encodedXmlData;
+
+                // get req to database
+                $.ajax({
+                    type: 'GET',
+                    url: url, // url with encoded xml data
+                    success: function (response) {
+                        console.log('Success:', response);
+                        // TODO: create a html page with a response
+                    },
+                    error: function (error) {
+                        console.error('Error:', error);
+                    }
+                });
+
+                // HTML LOAD
                 var historyHtml = '<h3>' + name + ' history: </h3>';
                 $('#historyUI').html(historyHtml);
             } else {
