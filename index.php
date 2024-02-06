@@ -166,24 +166,45 @@
                     url: url, // url with encoded xml data
                     dataType: 'xml',
                     success: function (response) {
-                        $('#historyUI').html(historyCreateHtml(response));
+                        historyCreateHtml(response)
                     },
                     error: function (error) {
                         console.error('Error:', error);
                     }
                 });
-
-                // HTML LOAD
-                var historyHtml = '<h3>' + name + ' history: </h3>';
-                $('#historyUI').html(historyHtml);
             } else {
+                // HTML LOAD
                 var noHistoryHtml = '<h3>Login to use this feature!</h3>';
                 $('#historyUI').html(noHistoryHtml);
             }
+
+            // TODO: make two functions global and more generic as there is a plan to use xslt for search bar
             function historyCreateHtml(response) {
-                var historyHtml = '<h3>' + name + ' history: </h3>';
-                // TODO: create a html page with response xml
-                return historyHtml;
+
+                // XSLT transformation to XML data
+                function applyXSLT(xmlData, xsltPath) {
+                    const xsltProcessor = new XSLTProcessor();
+                    const xsltStylesheet = new DOMParser().parseFromString(xsltPath, "text/xml");
+                    xsltProcessor.importStylesheet(xsltStylesheet);
+                    const resultDocument = xsltProcessor.transformToDocument(new DOMParser().parseFromString(xmlData, "text/xml"));
+                    return new XMLSerializer().serializeToString(resultDocument);
+                }
+
+                // Inject HTML content into div container
+                function injectHTML(htmlContent) {
+                    document.getElementById("historyUI").innerHTML = htmlContent;
+                }
+
+                // Fetch XML data and apply XSLT transformation
+                const xmlData = new XMLSerializer().serializeToString(response);
+                const xsltPath = `historyWeather.xslt`; // Path to your XSLT file
+                fetch(xsltPath)
+                    .then(response => response.text())
+                    .then(xsltContent => {
+                        const htmlContent = applyXSLT(xmlData, xsltContent);
+                        injectHTML(htmlContent);
+                    })
+                    .catch(error => console.error('Error loading XSLT:', error));
             }
         }
     </script>
