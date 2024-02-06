@@ -164,9 +164,9 @@
                 $.ajax({
                     type: 'GET',
                     url: url, // url with encoded xml data
+                    dataType: 'xml',
                     success: function (response) {
-                        console.log('Success:', response);
-                        // TODO: create a html page with a response
+                        $('#historyUI').html(historyCreateHtml(response));
                     },
                     error: function (error) {
                         console.error('Error:', error);
@@ -179,6 +179,11 @@
             } else {
                 var noHistoryHtml = '<h3>Login to use this feature!</h3>';
                 $('#historyUI').html(noHistoryHtml);
+            }
+            function historyCreateHtml(response) {
+                var historyHtml = '<h3>' + name + ' history: </h3>';
+                // TODO: create a html page with response xml
+                return historyHtml;
             }
         }
     </script>

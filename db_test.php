@@ -106,13 +106,33 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
                     echo "3 - failed to find user";
                 }
 
-                echo $userID;
+                // query "history" table and get everything with "userID"
+                $result = $db->query("SELECT location, date, weather, maxTemp, mintemp, sunrise, sunset FROM history WHERE id='$userID'");
 
-                // TODO: query "history" table and get everything with "userID"
+                // Check if there are any results
+                if ($result) {
+                    // Create a new SimpleXMLElement for the response
+                    $xmlResponse = new SimpleXMLElement('<history></history>');
 
+                    // Loop through each row of the result set
+                    while ($row = $result->fetchArray()) {
+                        // Add data from each row to the XML document
+                        $historyElement = $xmlResponse->addChild('record');
+                        $historyElement->addChild('location', $row["location"]);
+                        $historyElement->addChild('date', $row["date"]);
+                        $historyElement->addChild('weather', $row["weather"]);
+                        $historyElement->addChild('maxTemp', $row["maxTemp"]);
+                        $historyElement->addChild('minTemp', $row["minTemp"]);
+                        $historyElement->addChild('sunrise', $row["sunrise"]);
+                        $historyElement->addChild('sunset', $row["sunset"]);
+                    }
 
-                // TODO: send back xml data
-
+                    header('Content-Type: application/xml');
+                    // send back xml data
+                    echo $xmlResponse->asXML();
+                } else {
+                    echo "No results found";
+                }
             } else {
                 echo "Invalid XML request";
             }
